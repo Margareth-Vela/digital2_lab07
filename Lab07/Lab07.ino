@@ -8,102 +8,93 @@
  *Ultima modificacion: Agosto 28, 2021
  */
 
-
-//Incluimos librerias necesarias
+//Librerias necesarias
 #include <SPI.h>
 #include <SD.h>
 
+//Variables del programa
 File myFile;
 int opcion = 0;
 char eleccion[20];
 void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);  //iniciamos comunicacion serial
-  SPI.setModule(0);  //iniciamos comunicacion SPI en el modulo 0
+
+//Inicializacion comunicacion serial
+  Serial.begin(9600);  
+  SPI.setModule(0);  //Inicializacion comunicacion SPI en el modulo 0
   Serial.print("Initializing SD card...");
   
-  pinMode(12, OUTPUT);  //Colocamos el CS del PA3
+  pinMode(PA_3, OUTPUT);  //Se coloca el CS en el pin 12
   
 //Se verifica que se haya iniciado correctamente la SD
-  if (!SD.begin(12)) {
+  if (!SD.begin(PA_3)) {
     Serial.println("initialization failed!");
     return;
   }
   Serial.println("initialization done.");
-
-  
-
 }
 
 void loop() {
-  //Se imprimen las instrucciones del menú 
-  Serial.println("De los archivos a continuacion selecciona el que desees abrir ");
-  Serial.println("Coloca unicamente el numero correspondiente al orden en el que se encuentran los archivos");
+  //Se imprime el mensaje inicial
+  Serial.println("Seleccione el numero correspondiente a la imagen que desea abrir de la memoria");
   
-  //Se imprimen los archivos existentes adentro de la SD card
+  //Se imprimen los archivos existentes dentro de la SD card
   myFile = SD.open("/");
   printDirectory(myFile, 0);
-  while(Serial.available()<1); //Espero a que el usuario me envie el dato por el puerto serial del archivo que desea desplegar de la SD
-  Serial.readBytes(eleccion,sizeof eleccion); //Luego de recibir el dato del usuario, lo leo hasta completarlo
+  while(Serial.available()<1); //Se espera el numero seleccionado por el usuario
+  Serial.readBytes(eleccion,sizeof eleccion); //Se imprime la imagen completa
   
-  // A continuacion realizo el menu que que se basa en la eleccion del usuario para desplegar cada archivo
+  //Menu para identificar la imagen seleccionada por el usuario
   if (eleccion[0] == '1'){
-      ReadFile("FANTASMA.txt"); //Se despliega opcion 1 que corresponde al archivo de MARIO
+      ReadFile("FANTASMA.txt"); //Se despliega el archivo del Fantasma de Pacman
   } else if (eleccion[0] == '2'){
-      ReadFile("FLOR.txt"); //Se despliega opcion 2 que corresponde al archivo de HEART
+      ReadFile("FLOR.txt"); //Se despliega el archivo de la Flor de Mario Bros
     }else if (eleccion[0] == '3'){
-      ReadFile("HONGO.txt"); //Se despliega opcion 3 que corresponde al archivo de CARITA
+      ReadFile("HONGO.txt"); //Se despliega el archivo del Hongo de Mario Bros
     }
-    else{ // Si el usuario no coloca alguna de las opciones disponibles, se despliega este mensaje
+    else{ // Si el usuario no coloca alguna de las opciones disponibles, se despliega el siguiente mensaje
       Serial.println("No escribiste un comando valido, escribe unicamente un numero entre 1 y 3");
-    }
-  
+    } 
 }
 
-//Funcion utilizada para desplegar los archivos dentro de la SD
+//Despliegue de los archivos dentro de la SD
 void printDirectory(File dir, int numTabs) {
    opcion = 0;
   
-   dir.rewindDirectory(); //Esto es para colocar el puntero que leer a los archivos de la SD al principio
+   dir.rewindDirectory(); //Se coloca el puntero para leer los archivos de la SD al principio
    while(true) {
      
      File entry =  dir.openNextFile();  //Se abre el siguiente archivo del puntero
      if (! entry) {
-       // no more files
+       // Si ya no hay mas archivos
        break;
      }
      for (uint8_t i=0; i<numTabs; i++) {
        Serial.print('\t');
      }
-     if (entry.isDirectory()) {  //Esto se utiliza cuando lo que se esta leyendo no es un archivo (usualemente es una carpeta)
-
+     if (entry.isDirectory()) {  //Si no esta leyendo solamente un archivo
        
      } else {
-       // files have sizes, directories do not
        opcion ++;
        Serial.print(opcion);
        Serial.print(". ");
-       Serial.print(entry.name());  //Se imprime el nombre del archivo
-       Serial.print("\t\t");  //Se realizan 2 tabulaciones
-       Serial.println(entry.size(), DEC); //Se coloca el tamaño del archivo en decimal
+       Serial.println(entry.name());  //Se imprime el nombre del archivo
      }
-    
-   }
+     }
 }
 
+//Para leer el archivo
 void ReadFile(char name[]){
-  myFile = SD.open(name); //Se abre el arhivo dado en el argumento
+  myFile = SD.open(name); //Se abre el arhivo dependiendo del argumento
   if (myFile) { //Si se logro abrir de manera correcta
-    Serial.println(name); //se imprime el nombre del archivo
+    Serial.println(name); //se imprime el archivo
 
-    // read from the file until there's nothing else in it:
-    while (myFile.available()) { //Se va leyendo cada caracter del archivo hasta que ya se hayan leido todos
+    while (myFile.available()) { //Se va leyendo cada caracter del archivo hasta completarlo
       Serial.write(myFile.read());
     }
-    // close the file:
+
     myFile.close(); //Se cierra el archivo
   } else {
-    // if the file didn't open, print an error:
-    Serial.println("error opening txt");
+    // Si el archivo no se abre correctamente
+    Serial.println("Error al abrir el txt");
   }
   }
