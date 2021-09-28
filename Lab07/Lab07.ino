@@ -1,10 +1,12 @@
-//************************************************************************** 
-// Author:  
-// Carnet: 
-// Fecha de creación: 27/09/2021
-// Ultima modificación: 27/09/2021
-//**************************************************************************
-
+/*Autor: Margareth Vela
+ *Dispositivo: Launchpad Tiva C  
+ *
+ *Programa: Manejo de Memoria SD
+ *Hardware: Pantalla TFT LCD
+ *
+ *Creado: Agosto 28, 2021
+ *Ultima modificacion: Agosto 28, 2021
+ */
 
 
 //Incluimos librerias necesarias
